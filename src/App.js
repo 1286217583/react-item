@@ -1,16 +1,37 @@
 
 import React from 'react'
+// 路由
+import {
+  HashRouter as Router,
+  Route,
+  Switch
+} from 'react-router-dom'
 
-import {Button} from 'antd'
-import './index.less'
-import './a.less'
+import BaseLayout from './layouts/BaseLayout'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import './base.less'
 
 const App = () => {
   return(
-    <div className='app'>
-      <h1>App</h1>
-      <Button type="primary">点我</Button>
-    </div>
+    <Router>
+      <Switch>
+        <Route 
+          path='/login'
+          component={ Login }
+        />
+
+        <Route 
+          path='/register'
+          component={ Register }
+        />
+
+        <Route 
+          path='/' 
+          component={BaseLayout} 
+        />
+      </Switch>
+    </Router>
   )
 }
 
