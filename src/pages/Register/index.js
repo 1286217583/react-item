@@ -5,24 +5,51 @@ import {
   Form,
   Input,
   Button,
-  Radio
+  Radio,
+  message
 } from 'antd'
+
+import { SignUp } from '../..//api/UserApi'
 
 import {
   UserOutlined,
   LockOutlined
 } from '@ant-design/icons';
+import Login from '../Login';
 
 class Register extends React.PureComponent {
-  hangleSubmit(values) {
-    console.log(values);
-  }
 
   state = {
-    gebder: 1
+    gebder: 1,
+    loading: false 
+  }
+
+  hangleSubmit(datas) {
+    this.setState({
+      loading: true
+    })
+
+    datas = {...datas, gender: this.state.gebder}
+    SignUp(datas).then(response => {
+      const { data } = response
+      if (data.code === 0) {
+        message.success('注册成功', 1, () => {
+          // 跳转登录页
+        this.props.history.push('/login')
+        })
+      } else {
+        message.error(data.msg, 1, () => {
+          this.setState({
+            loading: false
+          })
+        })
+      }
+    })
   }
 
   render() {
+    const { loading } = this.state
+
     return (
       <div className='page-register'>
         <Row 
@@ -36,12 +63,13 @@ class Register extends React.PureComponent {
           >
             <Form
               className='page-register__from'
-              onFinish={this.hangleSubmit}
+              onFinish={(data) => {
+                this.hangleSubmit(data)
+              }}
             >
               {/* userName start */}
               <Form.Item
                 name='username'
-                // initialValue='123'
                 rules={[
                   {
                     required:true,
@@ -52,7 +80,7 @@ class Register extends React.PureComponent {
               >
                 <Input 
                   prefix={
-                    <UserOutlined                         className="site-form-item-icon"
+                    <UserOutlined                     className="site-form-item-icon"
                   />} 
                   placeholder="Username" 
                 />
@@ -85,13 +113,6 @@ class Register extends React.PureComponent {
               {/* gender start */}
               <Form.Item
                 name='gender'
-                rules={[
-                  {
-                    
-                    required: true,
-                    message: '请选择你的性别'
-                  }
-                ]}
                 messageVariables={1}
               >
                 <Radio.Group
@@ -117,7 +138,8 @@ class Register extends React.PureComponent {
               <Form.Item>
                 <Button 
                   type="primary"
-                  htmlType="submit" className="page-register__button"
+                  htmlType="submit" className="page-register__form-button"
+                  loading= { loading }
                 >
                   注册
                 </Button>
