@@ -1,21 +1,51 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import {
   Row,
   Col,
   Form,
   Input,
-  Button
+  Button,
+  message
 } from 'antd'
-
 import {
   UserOutlined,
   LockOutlined
 } from '@ant-design/icons';
-
+import { SignIn } from '../../api/UserApi'
 
 class Login extends React.PureComponent {
-  hangleSubmit(values) {
-    console.log(values);
+  state = {
+    loading: false
+  }
+
+  hangleSubmit = (values) => {
+    const {
+      handleLogin,
+      location,
+      history
+    } = this.props
+
+    this.setState({
+      loading: true
+    })
+
+    SignIn(values).then(response => {
+      const { data } = response
+      if (data.code === 0) {
+        handleLogin(data.data)
+        message.success('登录成功', .5, () => {
+          const redirect = location.state.Redirect
+          history.replace(redirect)
+        })
+      } else {
+        message.error(data.msg, 1, () => {
+          this.setState({
+            loading: false
+          })
+        })
+      }
+    })
   }
 
   render() {
@@ -23,7 +53,7 @@ class Login extends React.PureComponent {
       <div className='page-login'>
         <Row 
           className='page-login__row'
-          type='flex' 
+          type='flex'
           align='middle'
         >
           <Col
@@ -82,8 +112,9 @@ class Login extends React.PureComponent {
                 <Button 
                   type="primary"
                   htmlType="submit" className="page-login__form-button"
+                  loading={ this.state.loading }
                 >
-                  Log in
+                  登 录
                 </Button>
               </Form.Item>
               {/* formButton end */}
@@ -96,4 +127,16 @@ class Login extends React.PureComponent {
   }
 }
 
-export default Login
+export default connect(
+  null,
+  (dispatch) => {
+    return {
+      handleLogin (user) {
+        dispatch({
+          type: 'LOGIN',
+          user
+        })
+      }
+    }
+  }
+)(Login)
